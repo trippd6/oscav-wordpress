@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+
+MYSQL_ROOT_PASSWORD=`openssl rand -base64 32`;
+MYSQL_PASSWORD=`openssl rand -base64 32`;
+
+if [[ $# -eq 0 ]] ; then
+    echo 'domain name required'
+    exit 1
+fi
+
+MYSQL_ROOT_PASSWORD='FrLfgArTcDC7zTTTO9hiomp15EDjLSxpd6n8XciSTb4=' MYSQL_PASSWORD='o0wlHkuhH0w8eBDOf1pq8490YBurUDaT686Z+YJdmMA=' DOMAIN_NAME=$1 docker-compose -p $1 up -d
