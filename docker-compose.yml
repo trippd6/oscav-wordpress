@@ -2,9 +2,12 @@
  services:
    db:
      image: mariadb:10.1.18
+     ports:
+       - "3306"
      restart: always
      volumes:
-       - /tmp/${DOMAIN_NAME}/mysql:/var/lib/mysql
+       - /data01/${DOMAIN_NAME}/mysql:/var/lib/mysql
+       - ./wordpress.cnf:/etc/mysql/conf.d/wordpress.cnf:ro
      environment:
        MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
        MYSQL_DATABASE: wordpress
@@ -14,35 +17,35 @@
    php:
      depends_on:
        - db
-     image: wordpress:php7.0-fpm
+     image: wordpress
      links:
        - db
      restart: always
      volumes:
-       - /tmp/${DOMAIN_NAME}/html:/var/www/html
-       - /tmp/${DOMAIN_NAME}/cache:/etc/nginx/cache
+       - /data01/${DOMAIN_NAME}/html:/var/www/html
+       - /data01/${DOMAIN_NAME}/cache:/etc/nginx/cache
        - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
        - ./www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
-     environment:
-       WORDPRESS_DB_HOST: db:3306
-       WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
-       WORDPRESS_DB_USER: wordpress
+     env_file:
+       - ./${DOMAIN_NAME}.env  
 
    web:
      image: nginx_test
      ports:
        - "80"
      volumes:
-       - /tmp/${DOMAIN_NAME}/html:/var/www/html:ro
-       - /tmp/${DOMAIN_NAME}/cache:/etc/nginx/cache
+       - /data01/${DOMAIN_NAME}/html:/var/www/html:ro
+       - /data01/${DOMAIN_NAME}/cache:/etc/nginx/cache
        - ./nginx.conf:/etc/nginx/nginx.conf
      links:
        - php
      environment:
-       - VIRTUAL_HOST=${DOMAIN_NAME}
+       - VIRTUAL_HOST=${DOMAIN_NAMES}
        - HTTPS_METHOD=noredirect
        - LETSENCRYPT_STAGING=1
        - LETSENCRYPT_EMAIL=tripp@wasteoftime.org
+     labels:
+       - "letsencrypt.nocert=true"
      networks:
        - default
        - nginx-proxy
