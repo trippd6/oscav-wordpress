@@ -26,8 +26,8 @@
        - /data01/${DOMAIN_NAME}/cache:/etc/nginx/cache
        - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
        - ./www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
-     env_file:
-       - ./${DOMAIN_NAME}.env  
+     #env_file:
+     #  - ./${DOMAIN_NAME}.env  
 
    web:
      image: nginx
