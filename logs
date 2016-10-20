@@ -5,5 +5,5 @@ if [[ $# -eq 0 ]] ; then
     exit 1
 fi
 
-DOMAIN_NAME=$1 docker-compose -p $1 logs -f
+DOMAIN_NAME=$1 docker-compose -p $1 logs -f --tail=1000
 
