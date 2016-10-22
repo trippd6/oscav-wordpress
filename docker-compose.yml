@@ -1,12 +1,13 @@
  version: '2'
  services:
    db:
-     image: mariadb:10.1.18
+     image: mariadb
      ports:
        - "3306"
      restart: always
      volumes:
        - /data01/${DOMAIN_NAME}/mysql:/var/lib/mysql
+       - /data01/${DOMAIN_NAME}/backups:/backups
        - ./wordpress.cnf:/etc/mysql/conf.d/wordpress.cnf:ro
      environment:
        MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
