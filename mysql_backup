@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mkdir -p /backups;
+mysqldump -p$MYSQL_ROOT_PASSWORD --all_databases --master-data --single-transaction | gzip > /backups/mysql_all_databases_$(date +\%Y-\%m-\%d_\%H-\%M-\%S).gz; find /backups/* -mtime +7 -exec rm {} \;
+

@@ -1,0 +1,2 @@
+docker ps -q -f name=db_1 | xargs -I '{}' docker exec -i {} mysql_backup
+
