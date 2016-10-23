@@ -1,2 +1,2 @@
-docker ps -q -f name=db_1 | xargs -I '{}' docker exec -i {} bash -c 'echo {}; mysql -p$MYSQL_ROOT_PASSWORD -e "show slave status\G"' 2>&1 | more
+docker ps --format="{{.Names}}" -f name=db_1 | xargs -I '{}' docker exec -i {} bash -c 'echo {}; mysql -p$MYSQL_ROOT_PASSWORD -e "show slave status\G"' 2>&1 | more
 

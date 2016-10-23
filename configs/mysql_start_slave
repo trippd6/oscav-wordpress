@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+use HTTP::Tiny;
+use Data::Dumper;
+
+my $port = 3306; #32869;
+my $domain_name = $ENV{DOMAIN_NAME};
+my $host = $ENV{REMOTE_HOST};
+my $user = 'replication_user';
+my $pass = 'nUYEQr+Dzpg3=mJy';
+my $root_pass = $ENV{MYSQL_ROOT_PASSWORD};
+my $db = $ENV{DB_NAME};
+my %ports;
+
+my $response = HTTP::Tiny->new->get("http://$host/discovery/");
+
+my @lines = split(/[\n\r]+/, $response->{content});
+
+foreach my $line (@lines) {
+        my ($key, $value) = split(" ", $line);
+        $ports{$key} = $value;
+}
+
+$port = $ports{$domain_name};
+
+print "Backing up source databases\n";
+print `mysqldump -C -h $host -P $port -u $user -p$pass --all_databases --master-data --single-transaction > /tmp/slave_setup.sql`;
+
+print "Stop any current replication\n";
+print `mysql -p$root_pass -e "stop slave; reset slave all; CHANGE MASTER TO MASTER_HOST='$host', MASTER_USER='$user', MASTER_PASSWORD='$pass', MASTER_PORT=$port, MASTER_CONNECT_RETRY=10;"`;
+
+print "Restoring database\n";
+print `mysql -p$root_pass < /tmp/slave_setup.sql`;
+
+print "Restricting user to read only\n";
+print `mysql -p$root_pass -e "revoke all on *.* from wordpress\@localhost; revoke all on *.* from wordpress\@'%';"`;
+print `mysql -p$root_pass -e "revoke all on $db.* from wordpress\@localhost; revoke all on $db.* from wordpress\@'%';"`;
+print `mysql -p$root_pass -e "grant select on $db.* to wordpress\@localhost; grant select on $db.* to wordpress\@'%';"`;
+
+print "Start slave\n";
+print `mysql -p$root_pass -e "start slave; show slave status\\G"`;
+
+print "Waiting for 5 seconds\n";
+sleep 5;
+print `mysql -p$root_pass -e "show slave status\\G"`;
+
+print "Remove migration files\n";
+print `rm /tmp/slave_setup.sql`;
+
+#1

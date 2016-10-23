@@ -8,14 +8,18 @@
      volumes:
        - /data01/${DOMAIN_NAME}/mysql:/var/lib/mysql
        - /data01/${DOMAIN_NAME}/backups:/backups
-       - ./config/wordpress.cnf:/etc/mysql/conf.d/wordpress.cnf:ro
-       - ./config/mysql_backup:/usr/bin/mysql_backup:ro
+       - ./configs/wordpress.cnf:/etc/mysql/conf.d/wordpress.cnf:ro
+       - ./configs/mysql_backup:/usr/bin/mysql_backup:ro
+       - ./configs/mysql_start_slave:/usr/bin/mysql_start_slave:ro
      environment:
-       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-       MYSQL_DATABASE: wordpress
-       MYSQL_USER: wordpress
-       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-       DOMAIN_NAME: ${DOMAIN_NAME}
+       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+       - MYSQL_DATABASE=wordpress
+       - MYSQL_USER=wordpress
+       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+       - DOMAIN_NAME=${DOMAIN_NAME}
+     env_file:
+       - env/server.env
+       - env/${DOMAIN_NAME}.env
 
    php:
      depends_on:
@@ -27,8 +31,8 @@
      volumes:
        - /data01/${DOMAIN_NAME}/html:/var/www/html
        - /data01/${DOMAIN_NAME}/cache:/etc/nginx/cache
-       - ./config/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
-       - ./config/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
+       - ./configs/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
+       - ./configs/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
 
    web:
      image: nginx
@@ -37,7 +41,7 @@
      volumes:
        - /data01/${DOMAIN_NAME}/html:/var/www/html:ro
        - /data01/${DOMAIN_NAME}/cache:/etc/nginx/cache
-       - ./config/nginx.conf:/etc/nginx/nginx.conf
+       - ./configs/nginx.conf:/etc/nginx/nginx.conf
      links:
        - php
      environment:

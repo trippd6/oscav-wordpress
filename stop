@@ -5,4 +5,8 @@ if [[ $# -eq 0 ]] ; then
     exit 1
 fi
 
-DOMAIN_NAME=$1 docker-compose -p $1 stop 
+MYSQL_ROOT_PASSWORD=`echo FrLfgArTcDC7zTTTO9hiomp15EDjLSxpd6n8XciSTb4$1 | sha256sum | head -c 32` \
+MYSQL_PASSWORD=`echo o0wlHkuhH0w8eBDOf1pq8490YBurUDaT686Z+YJdmMA$1 | sha256sum | head -c 32` \
+DOMAIN_NAME=$1 \
+DOMAIN_NAMES=$1,dfw1.$1,www.$1 \
+docker-compose -p $1 stop 
