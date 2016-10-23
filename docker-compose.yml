@@ -15,6 +15,7 @@
        MYSQL_DATABASE: wordpress
        MYSQL_USER: wordpress
        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+       DOMAIN_NAME: ${DOMAIN_NAME}
 
    php:
      depends_on:
