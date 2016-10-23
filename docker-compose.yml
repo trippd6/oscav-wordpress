@@ -8,8 +8,8 @@
      volumes:
        - /data01/${DOMAIN_NAME}/mysql:/var/lib/mysql
        - /data01/${DOMAIN_NAME}/backups:/backups
-       - ./wordpress.cnf:/etc/mysql/conf.d/wordpress.cnf:ro
-       - ./mysql_backup:/usr/bin/mysql_backup:ro
+       - ./config/wordpress.cnf:/etc/mysql/conf.d/wordpress.cnf:ro
+       - ./config/mysql_backup:/usr/bin/mysql_backup:ro
      environment:
        MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
        MYSQL_DATABASE: wordpress
@@ -27,10 +27,8 @@
      volumes:
        - /data01/${DOMAIN_NAME}/html:/var/www/html
        - /data01/${DOMAIN_NAME}/cache:/etc/nginx/cache
-       - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
-       - ./www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
-     #env_file:
-     #  - ./${DOMAIN_NAME}.env  
+       - ./config/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
+       - ./config/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
 
    web:
      image: nginx
@@ -39,7 +37,7 @@
      volumes:
        - /data01/${DOMAIN_NAME}/html:/var/www/html:ro
        - /data01/${DOMAIN_NAME}/cache:/etc/nginx/cache
-       - ./nginx.conf:/etc/nginx/nginx.conf
+       - ./config/nginx.conf:/etc/nginx/nginx.conf
      links:
        - php
      environment:
