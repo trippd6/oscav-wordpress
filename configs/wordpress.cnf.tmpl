@@ -1,0 +1,9 @@
+[mysqld]
+
+log-bin
+server_id=${SERVER_ID}
+query_cache_size=128M
+query_cache_limit=1M
+# allows large imports
+max_allowed_packet=64M
+expire_logs_days=14

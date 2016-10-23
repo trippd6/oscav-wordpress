@@ -8,7 +8,12 @@ if [[ $# -eq 0 ]] ; then
     exit 1
 fi
 
+#In case the enviorment file doesnt exist, create it
 touch env/$1.env
+
+#Regenerate the mysql config file based on the template
+envsubst < configs/wordpress.cnf.tmpl > configs/wordpress.cnf
+
 
 MYSQL_ROOT_PASSWORD=`echo FrLfgArTcDC7zTTTO9hiomp15EDjLSxpd6n8XciSTb4$1 | sha256sum | head -c 32` \
 MYSQL_PASSWORD=`echo o0wlHkuhH0w8eBDOf1pq8490YBurUDaT686Z+YJdmMA$1 | sha256sum | head -c 32` \
