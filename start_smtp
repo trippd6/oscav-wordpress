@@ -1,0 +1,3 @@
+docker network create smtp-relay
+docker run --name relay --network smtp-relay --restart always -d namshi/smtp
+

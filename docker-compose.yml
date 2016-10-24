@@ -33,6 +33,10 @@
        - /data01/${DOMAIN_NAME}/cache:/etc/nginx/cache
        - ./configs/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
        - ./configs/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
+       - ./configs/mail.php:/var/www/html/wp-content/mu-plugins/mail.php:ro
+     networks:
+       - default
+       - smtp-relay
 
    web:
      image: nginx
@@ -60,3 +64,6 @@
    nginx-proxy:
      external:
        name: nginx-proxy
+   smtp-relay:
+     external:
+       name: smtp-relay
