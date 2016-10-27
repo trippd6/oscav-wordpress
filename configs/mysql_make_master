@@ -1,0 +1,10 @@
+#!/usr/bin/perl
+
+my $db = $ENV{DB_NAME};
+
+int "Stop any current replication\n";
+print `mysql -p$root_pass -e "stop slave; reset slave all;"`;
+
+print "Making wordpress user read/write\n";
+print `mysql -p$root_pass -e "grant all on $db.* to wordpress\@localhost; grant all on $db.* to wordpress\@'%';"`;
+

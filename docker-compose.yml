@@ -11,6 +11,7 @@
        - ./configs/wordpress.cnf:/etc/mysql/conf.d/wordpress.cnf:ro
        - ./configs/mysql_backup:/usr/bin/mysql_backup:ro
        - ./configs/mysql_start_slave:/usr/bin/mysql_start_slave:ro
+       - ./configs/mysql_make_master:/usr/bin/mysql_make_master:ro
      environment:
        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
        - MYSQL_DATABASE=wordpress
