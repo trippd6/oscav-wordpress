@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 
+my $root_pass = $ENV{MYSQL_ROOT_PASSWORD};
 my $db = $ENV{DB_NAME};
 
 int "Stop any current replication\n";
