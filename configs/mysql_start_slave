@@ -35,6 +35,7 @@ print `mysqldump -p$root_pass --all_databases --master-data --single-transaction
 
 print "Restoring database\n";
 print `mysql -p$root_pass < /tmp/slave_setup.sql`;
+print `mysql -p$root_pass -e "flush privileges;"`;
 
 print "Restricting user to read only\n";
 print `mysql -p$root_pass -e "revoke all on *.* from wordpress\@localhost; revoke all on *.* from wordpress\@'%';"`;
