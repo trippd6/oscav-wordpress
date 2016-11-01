@@ -21,6 +21,11 @@
      env_file:
        - env/server.env
        - env/${DOMAIN_NAME}.env
+     logging:
+       driver: json-file
+       options:
+         max-size: "250m"
+         max-file: "7"
 
    php:
      depends_on:
@@ -38,6 +43,11 @@
      networks:
        - default
        - smtp-relay
+     logging:
+       driver: json-file
+       options:
+         max-size: "250m"
+         max-file: "7"
 
    web:
      image: nginx
@@ -60,6 +70,11 @@
        - default
        - nginx-proxy
      restart: always
+     logging:
+       driver: json-file
+       options:
+         max-size: "250m"
+         max-file: "7"
 
  networks:
    nginx-proxy:
