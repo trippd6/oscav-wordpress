@@ -28,7 +28,7 @@ print "Backing up source databases\n";
 print `mysqldump -C -h $host -P $port -u $user -p$pass --all_databases --master-data --single-transaction > /tmp/slave_setup.sql`;
 
 print "Stop any current replication\n";
-print `mysql -p$root_pass -e "stop slave; reset slave all; CHANGE MASTER TO MASTER_HOST='$host', MASTER_USER='$user', MASTER_PASSWORD='$pass', MASTER_PORT=$port, MASTER_CONNECT_RETRY=10;"`;
+print `mysql -p$root_pass -e "stop slave; reset slave all; CHANGE MASTER TO MASTER_HOST='$host', MASTER_USER='$user', MASTER_PASSWORD='$pass', MASTER_PORT=$port, MASTER_CONNECT_RETRY=10, master_use_gtid=no;"`;
 
 print "Backup current database\n";
 print `mysqldump -p$root_pass --all_databases --master-data --single-transaction | gzip > /backups/mysql_all_databases_\$(date +\%Y-\%m-\%d_\%H-\%M-\%S).gz;`;
