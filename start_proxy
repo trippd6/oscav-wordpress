@@ -1,3 +1,4 @@
 docker network create nginx-proxy
-docker run --name proxy --network nginx-proxy --restart always --log-driver=json-file --log-opt max-size=250m --log-opt max-file=1 -d -p 80:80 -p 443:443 -v /var/run/docker.sock:/tmp/docker.sock:ro -v /tmp/certs:/etc/letsencrypt -v /tmp/certs_nginx:/etc/nginx/certs proxy
+docker run --name proxy --network nginx-proxy --restart always --log-driver=syslog --log-opt tag="docker_{{.Name}}" -d -p 80:80 -p 443:443 -v /var/run/docker.sock:/tmp/docker.sock:ro -v /tmp/certs:/etc/letsencrypt -v /tmp/certs_nginx:/etc/nginx/certs proxy
+
 
