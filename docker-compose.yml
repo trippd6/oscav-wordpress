@@ -46,6 +46,8 @@
        driver: syslog
        options:
          tag: "docker_{{.Name}}"
+     cap_add:
+       - SYS_PTRACE
 
    web:
      image: nginx
