@@ -1,0 +1,23 @@
+#!/usr/bin/bash
+
+set -a;
+source env/server.env;
+
+if [[ $# -lt 2 ]] ; then
+    echo 'USAGE: copy from.com to.com'
+    exit 1
+fi
+
+mkdir -p /data01/$2
+cp -a /data01/$1/html /data01/$2/
+./start $2
+docker-compose -p $1 exec db "mysql_backup"
+
+BACKUP=`ls -t1 /data01/$1/backups/ | head -1` 
+cp -a /data01/$1/backups/$BACKUP /data01/$2/backups/
+docker-compose -p stage.grazeme.com exec db "bash" -c "zcat /backups/$BACKUP | mysql -p\$MYSQL_ROOT_PASSWORD " 
+docker-compose -p stage.grazeme.com exec db "bash" -c "mysql -p\$MYSQL_ROOT_PASSWORD -e \"flush privileges;\""
+
+echo "define('WP_HOME','http://$2');" >> /data01/$2/html/wp-config.php
+echo "define('WP_SITEURL','http://$2');" >> /data01/$2/html/wp-config.php
+
