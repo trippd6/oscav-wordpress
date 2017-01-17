@@ -9,14 +9,25 @@ if [[ $# -lt 2 ]] ; then
 fi
 
 mkdir -p /data01/$2
+
+echo "Copying data from /data01/$1/html to /data01/$2/"
 cp -a /data01/$1/html /data01/$2/
+
+echo "Starting containers"
 ./start $2
+
+echo "Backing up source"
 docker-compose -p $1 exec db "mysql_backup"
 
 BACKUP=`ls -t1 /data01/$1/backups/ | head -1` 
+
+echo "Waiting a minute for mysql to finish starting..."
+sleep 60
+
+echo "Restoring Database" 
 cp -a /data01/$1/backups/$BACKUP /data01/$2/backups/
-docker-compose -p stage.grazeme.com exec db "bash" -c "zcat /backups/$BACKUP | mysql -p\$MYSQL_ROOT_PASSWORD " 
-docker-compose -p stage.grazeme.com exec db "bash" -c "mysql -p\$MYSQL_ROOT_PASSWORD -e \"flush privileges;\""
+docker-compose -p $2 exec db "bash" -c "zcat /backups/$BACKUP | mysql -p\$MYSQL_ROOT_PASSWORD " 
+docker-compose -p $2 exec db "bash" -c "mysql -p\$MYSQL_ROOT_PASSWORD -e \"flush privileges;\""
 
 echo "define('WP_HOME','http://$2');" >> /data01/$2/html/wp-config.php
 echo "define('WP_SITEURL','http://$2');" >> /data01/$2/html/wp-config.php
