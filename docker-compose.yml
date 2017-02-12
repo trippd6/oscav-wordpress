@@ -62,10 +62,7 @@
      environment:
        - VIRTUAL_HOST=${DOMAIN_NAMES}
        - HTTPS_METHOD=noredirect
-       - LETSENCRYPT_STAGING=1
        - LETSENCRYPT_EMAIL=tripp@wasteoftime.org
-     labels:
-       - "letsencrypt.nocert=true"
      networks:
        - default
        - nginx-proxy
