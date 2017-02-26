@@ -27,7 +27,7 @@ sleep 60
 echo "Restoring Database" 
 cp -a /data01/$1/backups/$BACKUP /data01/$2/backups/
 docker-compose -p $2 exec db "bash" -c "zcat /backups/$BACKUP | mysql -p\$MYSQL_ROOT_PASSWORD " 
-docker-compose -p $2 exec db "bash" -c "mysql -p\$MYSQL_ROOT_PASSWORD -e \"flush privileges;\""
+docker-compose -p $2 exec db "bash" -c "mysql -p\$MYSQL_ROOT_PASSWORD -e \"update mysql.user set password=PASSWORD('\$MYSQL_ROOT_PASSWORD') where user='root'; flush privileges;\""
 
 echo "define('WP_HOME','http://$2');" >> /data01/$2/html/wp-config.php
 echo "define('WP_SITEURL','http://$2');" >> /data01/$2/html/wp-config.php
