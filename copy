@@ -29,6 +29,8 @@ cp -a /data01/$1/backups/$BACKUP /data01/$2/backups/
 docker-compose -p $2 exec db "bash" -c "zcat /backups/$BACKUP | mysql -p\$MYSQL_ROOT_PASSWORD " 
 docker-compose -p $2 exec db "bash" -c "mysql -p\$MYSQL_ROOT_PASSWORD -e \"update mysql.user set password=PASSWORD('\$MYSQL_ROOT_PASSWORD') where user='root'; flush privileges;\""
 
-echo "define('WP_HOME','http://$2');" >> /data01/$2/html/wp-config.php
-echo "define('WP_SITEURL','http://$2');" >> /data01/$2/html/wp-config.php
+# this is all dumb - remove the <?php
+tail -n +2 /data01/$2/html/wp-config.php  > /data01/$2/html/wp-config.php2 
+echo -e "<?php\ndefine('WP_HOME','http://$2');\ndefine('WP_SITEURL','http://$2');\n$(cat /data01/$2/html/wp-config.php2)" > /data01/$2/html/wp-config.php2
+mv /data01/$2/html/wp-config.php2 /data01/$2/html/wp-config.php
 
