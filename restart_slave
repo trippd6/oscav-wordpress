@@ -1,0 +1,1 @@
+docker ps --format="{{.Names}}" -f name=db_1 | xargs -I '{}' docker exec -i {} bash -c 'echo {}; mysql_restart_slave' 2>&1 | more

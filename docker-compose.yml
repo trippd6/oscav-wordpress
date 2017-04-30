@@ -13,6 +13,7 @@
        - ./configs/mysql_start_slave:/usr/bin/mysql_start_slave:ro
        - ./configs/mysql_make_master:/usr/bin/mysql_make_master:ro
        - ./configs/mysql_add_repl_user.sql:/docker-entrypoint-initdb.d/mysql_add_repl_user.sql
+       - ./configs/mysql_restart_slave:/usr/bin/mysql_restart_slave:ro
      environment:
        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
        - MYSQL_DATABASE=wordpress

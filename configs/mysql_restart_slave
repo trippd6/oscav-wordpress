@@ -1,0 +1,75 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use DBD::mysql;
+use Data::Dumper;
+use HTTP::Tiny;
+
+$Data::Dumper::Sortkeys = 1;
+
+my $port = 3306; #32869;
+my $domain_name = $ENV{DOMAIN_NAME};
+my $host = $ENV{REMOTE_HOST};
+my $user = 'replication_user';
+my $pass = 'nUYEQr+Dzpg3=mJy';
+my $root_pass = $ENV{MYSQL_ROOT_PASSWORD};
+my $db = $ENV{DB_NAME};
+my %ports;
+
+my $response = HTTP::Tiny->new->get("http://$host/discovery/");
+
+my @lines = split(/[\n\r]+/, $response->{content});
+
+foreach my $line (@lines) {
+        my ($key, $value) = split(" ", $line);
+        $ports{$key} = $value;
+}
+
+$port = $ports{$domain_name};
+
+my $dsn = "DBI:mysql:database=mysql;host=localhost;port=3306";
+my $dbh = DBI->connect($dsn, $user, $pass);
+
+
+
+my $master = show_slave_status();
+
+if ($master->{'Master_Port'} == $port) {
+  print "Ports already match, no action required.\n";
+  exit(0);
+}
+
+print "Stopping slave.\n";
+run("stop slave");
+
+$master = show_slave_status(); #run again in case log position changed
+
+print "Changing port on master connection.\n";
+run("
+  CHANGE MASTER TO
+    MASTER_HOST='$host',
+    MASTER_USER='$user',
+    MASTER_PASSWORD='$pass',
+    MASTER_PORT=$port,
+    MASTER_CONNECT_RETRY=10,
+    master_use_gtid=no,
+    MASTER_LOG_FILE = '$master->{Master_Log_File}',
+    MASTER_LOG_POS = $master->{Read_Master_Log_Pos}
+;");
+
+
+print "Starting slave.\n";
+run("start slave");
+
+sub run {
+   my $text = shift;
+   #print $text;
+   $dbh->do($text) or die ("failed to run query");
+}
+
+sub show_slave_status {
+  my $hash_ref = $dbh->selectrow_hashref("show slave status") or die ("failed to run show slave status");
+  #print Dumper($hash_ref);
+  return $hash_ref;
+}
