@@ -27,6 +27,7 @@
        driver: gelf
        options:
          gelf-address: "udp://www1.las1.vacso.com:12201"
+         gelf-compression-type: none
 
    php:
      depends_on:
@@ -48,6 +49,7 @@
        driver: gelf
        options: 
          gelf-address: "udp://www1.las1.vacso.com:12201"
+         gelf-compression-type: none
      cap_add:
        - SYS_PTRACE
 
@@ -73,6 +75,7 @@
        driver: gelf
        options:
          gelf-address: "udp://www1.las1.vacso.com:12201"
+         gelf-compression-type: none
 
  networks:
    nginx-proxy:

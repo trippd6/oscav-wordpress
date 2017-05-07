@@ -11,6 +11,10 @@ fi
 #In case the enviorment file doesnt exist, create it
 touch env/$1.env
 
+#Create directories with correct perms, if it doesn't already exist
+mkdir -p /data01/$1/html 2> /dev/null && chown 33:33 /data01/$1/html
+
+
 #Regenerate the mysql config file based on the template
 envsubst < configs/wordpress.cnf.tmpl > configs/wordpress.cnf
 
