@@ -11,13 +11,13 @@ fi
 mkdir -p /data01/$2
 
 echo "Copying data from /data01/$1/html to /data01/$2/"
-cp -a /data01/$1/html /data01/$2/
+#cp -a /data01/$1/html /data01/$2/
 
 echo "Starting containers"
 ./start $2
 
 echo "Backing up source"
-docker-compose -p $1 exec db "mysql_backup"
+DOMAIN_NAME=$1 docker-compose -p $1 exec db "mysql_backup"
 
 BACKUP=`ls -t1 /data01/$1/backups/ | head -1` 
 
@@ -26,8 +26,8 @@ sleep 60
 
 echo "Restoring Database" 
 cp -a /data01/$1/backups/$BACKUP /data01/$2/backups/
-docker-compose -p $2 exec db "bash" -c "zcat /backups/$BACKUP | mysql -p\$MYSQL_ROOT_PASSWORD " 
-docker-compose -p $2 exec db "bash" -c "mysql -p\$MYSQL_ROOT_PASSWORD -e \"update mysql.user set password=PASSWORD('\$MYSQL_ROOT_PASSWORD') where user='root'; flush privileges;\""
+DOMAIN_NAME=$2 docker-compose -p $2 exec db "bash" -c "zcat /backups/$BACKUP | mysql -p\$MYSQL_ROOT_PASSWORD " 
+DOMAIN_NAME=$2 docker-compose -p $2 exec db "bash" -c "mysql -p\$MYSQL_ROOT_PASSWORD -e \"update mysql.user set password=PASSWORD('\$MYSQL_ROOT_PASSWORD') where user='root'; flush privileges;\""
 
 # this is all dumb - remove the <?php
 tail -n +2 /data01/$2/html/wp-config.php  > /data01/$2/html/wp-config.php2 

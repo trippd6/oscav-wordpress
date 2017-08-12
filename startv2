@@ -1,0 +1,86 @@
+#!/usr/bin/bash
+
+set -a;
+source env/server.env;
+
+if [[ $# -eq 0 ]] ; then
+    echo 'domain name required'
+    exit 1
+fi
+
+
+#In case the enviorment file doesnt exist, create it
+if [ ! -f env/$1.env ]; then
+
+  MYSQL_ROOT_PASSWORD=`< /dev/urandom tr -dc [:alnum:] | head -c 32`
+  MYSQL_PASSWORD=`< /dev/urandom tr -dc [:alnum:] | head -c 32`
+  DOMAIN_NAME="$1"
+  DOMAIN_NAMES="$1,cdn.$1,$DC.$1,www.$1"
+  DB_NAME="wordpress"
+
+  MYSQL_USER=wordpress
+  MYSQL_DATABASE=wordpress
+
+  WORDPRESS_DB_HOST=db
+  WORDPRESS_TABLE_PREFIX=wp_
+  WORDPRESS_AUTH_KEY=`< /dev/urandom tr -dc [:alnum:] | head -c 64`
+  WORDPRESS_SECURE_AUTH_KEY=`< /dev/urandom tr -dc [:alnum:] | head -c 64`
+  WORDPRESS_LOGGED_IN_KEY=`< /dev/urandom tr -dc [:alnum:] | head -c 64`
+  WORDPRESS_NONCE_KEY=`< /dev/urandom tr -dc [:alnum:] | head -c 64`
+  WORDPRESS_AUTH_SALT=`< /dev/urandom tr -dc [:alnum:] | head -c 64`
+  WORDPRESS_SECURE_AUTH_SALT=`< /dev/urandom tr -dc [:alnum:] | head -c 64`
+  WORDPRESS_LOGGED_IN_SALT=`< /dev/urandom tr -dc [:alnum:] | head -c 64`
+  WORDPRESS_NONCE_SALT=`< /dev/urandom tr -dc [:alnum:] | head -c 64`
+
+
+
+  echo "DB_NAME=$DB_NAME
+DOMAIN_NAME=$DOMAIN_NAME
+DOMAIN_NAMES=$DOMAIN_NAMES" > env/$1.env
+
+  echo "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+MYSQL_PASSWORD=$MYSQL_PASSWORD
+MYSQL_USER=$MYSQL_USER
+MYSQL_DATABASE=$MYSQL_DATABASE" > env/$1.db.env
+
+  echo "WORDPRESS_DB_HOST=$WORDPRESS_DB_HOST
+WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD
+WORDPRESS_DB_USER=$MYSQL_USER
+WORDPRESS_DB_NAME=$MYSQL_DATABASE
+WORDPRESS_TABLE_PREFIX=$WORDPRESS_TABLE_PREFIX
+WORDPRESS_AUTH_KEY=$WORDPRESS_AUTH_KEY
+WORDPRESS_SECURE_AUTH_KEY=$WORDPRESS_SECURE_AUTH_KEY
+WORDPRESS_LOGGED_IN_KEY=$WORDPRESS_LOGGED_IN_KEY
+WORDPRESS_NONCE_KEY=$WORDPRESS_NONCE_KEY
+WORDPRESS_AUTH_SALT=$WORDPRESS_AUTH_SALT
+WORDPRESS_SECURE_AUTH_SALT=$WORDPRESS_SECURE_AUTH_SALT
+WORDPRESS_LOGGED_IN_SALT=$WORDPRESS_LOGGED_IN_SALT
+WORDPRESS_NONCE_SALT=$WORDPRESS_NONCE_SALT" > env/$1.php.env
+
+  echo "VIRTUAL_HOST=$DOMAIN_NAMES
+HTTPS_METHOD=noredirect
+LETSENCRYPT_EMAIL=tripp@wasteoftime.org
+  " > env/$1.web.env
+
+
+fi
+cat env/$1.env
+echo
+cat env/$1.db.env
+echo
+cat env/$1.php.env
+echo
+cat env/$1.web.env
+rm env/$1.env
+rm env/$1.db.env
+rm env/$1.php.env
+rm env/$1.web.env
+exit
+
+#Create directories with correct perms, if it doesn't already exist
+mkdir -p /data01/$1/html 2> /dev/null && chown 33:33 /data01/$1/html
+
+#Regenerate the mysql config file based on the template
+envsubst < configs/wordpress.cnf.tmpl > configs/wordpress.cnf
+
+docker-compose -p $1 up -d
